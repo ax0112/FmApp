@@ -2,7 +2,9 @@
 ---
 ### (一) 环境配置 
 1. [遵循React Native官网配置](https://www.react-native.cn/docs/environment-setup)
-2. 虚拟机版本: ios：15.3, Android:11.0
+2. node版本 v18.2.0
+3. yarn版本 1.22.18
+4. 虚拟机版本: ios：15.3, Android:11.0
 ### (二) 模块设计
 1. 首页模块
 2. 分类模块
