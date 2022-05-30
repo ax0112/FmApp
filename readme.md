@@ -1,4 +1,4 @@
-# 类喜马拉雅app使用React Native跨平台项目
+# 类喜马拉雅app使用React Native+TypeScript跨平台项目
 ---
 ### (一) 环境配置 
 1. [遵循React Native官网配置](https://www.react-native.cn/docs/environment-setup)
