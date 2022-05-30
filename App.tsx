@@ -9,6 +9,7 @@
  */
 
 import React from 'react';
+import Config from 'react-native-config';
 import {
   SafeAreaView,
   ScrollView,
@@ -87,6 +88,9 @@ const App = () => {
             Read the docs to discover what to do next:
           </Section>
           <LearnMoreLinks />
+        </View>
+        <View>
+          <Text>{Config.API_URL}</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
