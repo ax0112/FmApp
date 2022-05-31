@@ -20,4 +20,4 @@
 1. 多环境：为了可以快速调整测试环境和发布环境，使用react-native-config解决
 2. 绝对路径：使用babel-plugin-module-resolver
 3. 导航器 react navigation 6.x
-4. 
+4. 状态管理器 
