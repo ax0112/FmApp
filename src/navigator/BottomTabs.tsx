@@ -16,7 +16,7 @@ export type BottomTabsParamList = {
   Found: undefined;
   Account: undefined;
 };
-type Route = RouteProp<RootStackParamList, 'BottomTabs'>;
+type Route = RouteProp<RootStackParamList>;
 
 interface IProps {
   navigation: RootStackNavigation;
