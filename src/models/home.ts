@@ -1,48 +1,102 @@
 import {Effect, Model} from 'dva-core-ts';
 import {Reducer} from 'redux';
+import axios from 'axios';
 
+//轮播图API地址
+const CAROUSEL_URL = '/mock/11/bear/carousel';
+//猜你喜欢API地址
+const GUESS_URL = '/mock/11/bear/guess';
+//首页列表
+const CHANNEL_URL = '/mock/11/bear/channel';
+
+export interface ICarousel {
+  id: string;
+  image: [string];
+  colors: [string, string];
+}
+export interface IGuess {
+  id: string;
+  title: string;
+  image: string;
+}
+export interface IChannel {
+  id: string;
+  title: string;
+  image: string;
+  remark: string;
+  played: number;
+  playing: number;
+}
 export interface HomeState {
-  num: number;
+  carousel: ICarousel[];
+  guess: IGuess[];
+  channels: IChannel[];
 }
 
 interface HomeModel extends Model {
   namespace: 'home';
   state: HomeState;
   reducers: {
-    add: Reducer<HomeState>;
+    setState: Reducer<HomeState>;
   };
   effects: {
-    asyncAdd: Effect;
+    fetchCarousels: Effect;
+    fetchGuess: Effect;
+    fetchChannel: Effect;
   };
 }
 
-function delay(timeout: number) {
-  return new Promise(resolve => {
-    setTimeout(resolve, timeout);
-  });
-}
-
-const initialState = {
-  num: 20,
+const initialState: HomeState = {
+  carousel: [],
+  guess: [],
+  channels: [],
 };
 
 const homeModel: HomeModel = {
   namespace: 'home',
   state: initialState,
   reducers: {
-    add(state = initialState, {payload}) {
+    setState(state = initialState, {payload}) {
       return {
         ...state,
-        num: state.num + payload.num,
+        ...payload,
       };
     },
   },
   effects: {
-    *asyncAdd({payload}, {call, put}) {
-      yield call(delay, 3000);
+    *fetchCarousels(_, {call, put}) {
+      const {
+        data: {data},
+      } = yield call(axios.get, CAROUSEL_URL);
+      console.log('轮播图', data);
       yield put({
-        type: 'add',
-        payload,
+        type: 'setState',
+        payload: {
+          carousel: data,
+        },
+      });
+    },
+    *fetchGuess(_, {call, put}) {
+      const {
+        data: {data},
+      } = yield call(axios.get, GUESS_URL);
+      console.log('猜你喜欢', data);
+      yield put({
+        type: 'setState',
+        payload: {
+          guess: data,
+        },
+      });
+    },
+    *fetchChannel(_, {call, put}) {
+      const {
+        data: {data},
+      } = yield call(axios.get, CHANNEL_URL);
+      yield put({
+        type: 'setState',
+        payload: {
+          channels: data.results,
+        },
       });
     },
   },

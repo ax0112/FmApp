@@ -8,7 +8,7 @@ import {
 } from '@react-navigation/stack';
 import BottomTabs from './BottomTabs';
 import Detail from '@/pages/Detail';
-import {Platform, StyleSheet} from 'react-native';
+import {Platform, StatusBar, StyleSheet} from 'react-native';
 
 //类型别名 用于约束泛型类型
 export type RootStackParamList = {
@@ -40,6 +40,7 @@ class Navigator extends React.Component<any, any> {
                 android: {
                   elevation: 0,
                   borderBottomWidth: StyleSheet.hairlineWidth,
+                  headerStatusBarHeight: StatusBar.currentHeight,
                 },
               }),
             },
