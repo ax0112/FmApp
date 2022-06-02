@@ -1,10 +1,11 @@
 import React from 'react';
-import {FlatList, Image, StyleSheet, Text, View} from 'react-native';
+import {FlatList, StyleSheet, Text, View} from 'react-native';
 import {connect, ConnectedProps} from 'react-redux';
 import {RootState} from '@/models/index';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {IGuess} from '@/models/home';
 import Iconfont from '@/assets/iconfont';
+import GuessItems from '@/pages/Home/GuessItems';
 
 const mapStateToProps = ({home}: RootState) => {
   return {
@@ -19,6 +20,7 @@ class Guess extends React.Component<ModelState> {
   componentDidMount() {
     this.fetch();
   }
+
   fetch = () => {
     const {dispatch} = this.props;
     dispatch({
@@ -26,34 +28,35 @@ class Guess extends React.Component<ModelState> {
     });
   };
 
+  onPress = (data: IGuess) => {
+    console.log('Guess', data);
+  };
+
   renderItem = ({item}: {item: IGuess}) => {
+    return <GuessItems data={item} onPress={this.onPress} />;
+  };
+  getHeader() {
     return (
-      <View style={styles.item}>
-        <TouchableOpacity activeOpacity={0.8}>
-          <Image source={{uri: item.image}} style={styles.itemImage} />
-          <Text numberOfLines={2} style={styles.itemInfo}>
-            {item.title}
-          </Text>
-        </TouchableOpacity>
+      <View style={styles.head}>
+        <View style={styles.headFlex}>
+          <Iconfont name={'icon-favorites'} color="#F86442" />
+          <Text style={styles.headTitle}>猜你喜欢</Text>
+        </View>
+        <View style={styles.headFlex}>
+          <Text style={styles.headMore}>更多</Text>
+          <Iconfont name={'icon-arrow-right'} color="#333" />
+        </View>
       </View>
     );
-  };
+  }
+
+  // getFooter() {}
   render() {
     const {guess} = this.props;
     return (
       <View style={styles.container}>
-        <View style={styles.head}>
-          <View style={styles.headFlex}>
-            <Iconfont name={'icon-favorites'} color="#F86442" />
-            <Text style={styles.headTitle}>猜你喜欢</Text>
-          </View>
-          <View style={styles.headFlex}>
-            <Text style={styles.headMore}>更多</Text>
-            <Iconfont name={'icon-arrow-right'} color="#333" />
-          </View>
-        </View>
         <FlatList
-          style={styles.list}
+          ListHeaderComponent={this.getHeader}
           numColumns={3}
           data={guess}
           renderItem={this.renderItem}
@@ -67,32 +70,16 @@ class Guess extends React.Component<ModelState> {
   }
 }
 const styles = StyleSheet.create({
-  list: {
-    padding: 5,
-  },
   container: {
     backgroundColor: 'white',
     borderRadius: 8,
     margin: 10,
+    padding: 5,
     shadowColor: '#ccc',
     shadowOffset: {width: 0, height: 5},
     shadowOpacity: 0.5,
     shadowRadius: 8,
     elevation: 10,
-  },
-  item: {
-    flex: 1,
-    marginVertical: 8,
-    marginHorizontal: 5,
-  },
-  itemInfo: {
-    textAlign: 'center',
-  },
-  itemImage: {
-    width: '100%',
-    height: 90,
-    borderRadius: 8,
-    marginBottom: 10,
   },
   head: {
     flexDirection: 'row',

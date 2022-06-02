@@ -1,15 +1,26 @@
 import React from 'react';
-import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
+import {
+  createMaterialTopTabNavigator,
+  MaterialTopTabBar,
+  MaterialTopTabBarProps,
+} from '@react-navigation/material-top-tabs';
 import Index from '@/pages/Home/Index';
+import {View} from 'react-native';
+import TopTabBarWrapper from '@/pages/views/TopTabBarWrapper';
 
 const Tab = createMaterialTopTabNavigator();
 
 class HomeTabs extends React.Component<any, any> {
+  renderTabBar = (props: MaterialTopTabBarProps) => {
+    return <TopTabBarWrapper {...props} />;
+  };
   render() {
     return (
       <Tab.Navigator
+        tabBar={this.renderTabBar}
         screenOptions={{
           lazy: true,
+          tabBarStyle: {elevation: 0},
           tabBarScrollEnabled: true,
           tabBarItemStyle: {
             width: 100,

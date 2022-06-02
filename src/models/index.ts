@@ -1,10 +1,10 @@
-import home, {HomeState} from './home';
+import home from './home';
 import {DvaLoadingState} from 'dva-loading-ts';
 
 const models = [home];
 
 export type RootState = {
-  home: HomeState;
+  home: typeof home.state;
   loading: DvaLoadingState;
 };
 

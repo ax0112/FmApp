@@ -1,6 +1,7 @@
 import {Effect, Model} from 'dva-core-ts';
 import {Reducer} from 'redux';
 import axios from 'axios';
+import {RootState} from '@/models/index';
 
 //轮播图API地址
 const CAROUSEL_URL = '/mock/11/bear/carousel';
@@ -27,10 +28,17 @@ export interface IChannel {
   played: number;
   playing: number;
 }
+
+export interface IPagination {
+  current: number;
+  total: number;
+  hasMore: boolean;
+}
 export interface HomeState {
   carousel: ICarousel[];
   guess: IGuess[];
   channels: IChannel[];
+  pagination: IPagination;
 }
 
 interface HomeModel extends Model {
@@ -42,7 +50,7 @@ interface HomeModel extends Model {
   effects: {
     fetchCarousels: Effect;
     fetchGuess: Effect;
-    fetchChannel: Effect;
+    fetchChannels: Effect;
   };
 }
 
@@ -50,6 +58,11 @@ const initialState: HomeState = {
   carousel: [],
   guess: [],
   channels: [],
+  pagination: {
+    current: 1,
+    total: 0,
+    hasMore: true,
+  },
 };
 
 const homeModel: HomeModel = {
@@ -68,7 +81,6 @@ const homeModel: HomeModel = {
       const {
         data: {data},
       } = yield call(axios.get, CAROUSEL_URL);
-      console.log('轮播图', data);
       yield put({
         type: 'setState',
         payload: {
@@ -80,7 +92,6 @@ const homeModel: HomeModel = {
       const {
         data: {data},
       } = yield call(axios.get, GUESS_URL);
-      console.log('猜你喜欢', data);
       yield put({
         type: 'setState',
         payload: {
@@ -88,16 +99,42 @@ const homeModel: HomeModel = {
         },
       });
     },
-    *fetchChannel(_, {call, put}) {
+    *fetchChannels({callback, payload}, {call, put, select}) {
+      const {channels, pagination} = yield select(
+        (state: RootState) => state.home,
+      );
+
+      let page = 1;
+      if (payload && payload.loadMore) {
+        page = pagination.current + 1;
+      }
       const {
         data: {data},
-      } = yield call(axios.get, CHANNEL_URL);
+      } = yield call(axios.get, CHANNEL_URL, {
+        params: {
+          page,
+        },
+      });
+
+      let newChannel = data.results;
+      if (payload && payload.loadMore) {
+        newChannel = channels.concat(newChannel);
+      }
+
       yield put({
         type: 'setState',
         payload: {
-          channels: data.results,
+          channels: newChannel,
+          pagination: {
+            current: data.pagination.current,
+            hasMore: newChannel.length < data.pagination.total,
+            total: data.pagination.total,
+          },
         },
       });
+      if (typeof callback === 'function') {
+        callback();
+      }
     },
   },
 };
