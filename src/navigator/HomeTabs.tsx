@@ -1,26 +1,43 @@
 import React from 'react';
 import {
   createMaterialTopTabNavigator,
-  MaterialTopTabBar,
   MaterialTopTabBarProps,
 } from '@react-navigation/material-top-tabs';
 import Index from '@/pages/Home/Index';
-import {View} from 'react-native';
 import TopTabBarWrapper from '@/pages/views/TopTabBarWrapper';
+import {StyleSheet} from 'react-native';
+import {RootState} from '@/models/index';
+import {connect, ConnectedProps} from 'react-redux';
+
+const mapStateToProps = ({home}: RootState) => {
+  return {
+    gradientVisible: home.gradientVisible,
+  };
+};
+const connector = connect(mapStateToProps);
+type ModelState = ConnectedProps<typeof connector>;
 
 const Tab = createMaterialTopTabNavigator();
 
-class HomeTabs extends React.Component<any, any> {
+class HomeTabs extends React.Component<ModelState> {
   renderTabBar = (props: MaterialTopTabBarProps) => {
     return <TopTabBarWrapper {...props} />;
   };
   render() {
+    const {gradientVisible} = this.props;
+    let InactiveTintColor = '#333';
+    let ActiveTintColor = '#F86442';
+    if (gradientVisible) {
+      InactiveTintColor = '#fff';
+      ActiveTintColor = '#000';
+    }
     return (
       <Tab.Navigator
         tabBar={this.renderTabBar}
+        sceneContainerStyle={styles.sceneContainer}
         screenOptions={{
           lazy: true,
-          tabBarStyle: {elevation: 0},
+          tabBarStyle: styles.tabBar,
           tabBarScrollEnabled: true,
           tabBarItemStyle: {
             width: 100,
@@ -31,19 +48,32 @@ class HomeTabs extends React.Component<any, any> {
             borderRadius: 2,
             backgroundColor: '#F86442',
           },
-          tabBarActiveTintColor: '#F86442',
-          tabBarInactiveTintColor: '#333',
+          tabBarActiveTintColor: ActiveTintColor,
+          tabBarInactiveTintColor: InactiveTintColor,
         }}>
         <Tab.Screen
           name="Index"
           component={Index}
           options={{tabBarLabel: '推荐'}}
         />
-        <Tab.Screen name="Home2" component={Index} />
-        <Tab.Screen name="Home3" component={Index} />
+        <Tab.Screen
+          name="Index2"
+          component={Index}
+          options={{tabBarLabel: '推荐'}}
+        />
       </Tab.Navigator>
     );
   }
 }
-
-export default HomeTabs;
+const styles = StyleSheet.create({
+  sceneContainer: {
+    backgroundColor: 'transparent',
+  },
+  tabBar: {
+    elevation: 0,
+    flex: 1,
+    overflow: 'hidden',
+    backgroundColor: 'transparent',
+  },
+});
+export default connector(HomeTabs);

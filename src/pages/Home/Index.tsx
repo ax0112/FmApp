@@ -2,6 +2,8 @@ import React from 'react';
 import {
   FlatList,
   ListRenderItemInfo,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
   StyleSheet,
   Text,
   View,
@@ -9,7 +11,7 @@ import {
 import {RootStackNavigation} from '@/navigator/index';
 import {connect, ConnectedProps} from 'react-redux';
 import {RootState} from '@/models/index';
-import MyCarousel from '@/pages/Home/Carousel';
+import MyCarousel, {imgHeight} from '@/pages/Home/Carousel';
 import Guess from '@/pages/Home/Guess';
 import ChannelItem from '@/pages/Home/ChannelItem';
 import {IChannel} from '@/models/home';
@@ -17,8 +19,8 @@ import {IChannel} from '@/models/home';
 const mapStateToProps = ({home, loading}: RootState) => ({
   carousel: home.carousel,
   channels: home.channels,
-
   hasMore: home.pagination.hasMore,
+  gradientVisible: home.gradientVisible,
   loading: loading.effects['home/fetchChannels'],
 });
 const connector = connect(mapStateToProps);
@@ -58,13 +60,31 @@ class Index extends React.Component<IProps, IState> {
     return <ChannelItem data={item} onPress={this.channelInfo} />;
   };
   get header() {
-    const {carousel} = this.props;
     return (
       <View>
-        <MyCarousel data={carousel} />
-        <Guess />
+        <MyCarousel />
+        <View>
+          <Guess />
+        </View>
       </View>
     );
+  }
+  get footer() {
+    const {hasMore, loading, channels} = this.props;
+    if (!hasMore) {
+      return (
+        <View style={styles.end}>
+          <Text>---到底了，换点别的看看吧---</Text>
+        </View>
+      );
+    }
+    if (loading && hasMore && channels.length > 0) {
+      return (
+        <View style={styles.loading}>
+          <Text>正在加载中...</Text>
+        </View>
+      );
+    }
   }
   //上拉刷新
   onRefresh = () => {
@@ -94,23 +114,7 @@ class Index extends React.Component<IProps, IState> {
       },
     });
   };
-  get footer() {
-    const {hasMore, loading, channels} = this.props;
-    if (!hasMore) {
-      return (
-        <View style={styles.end}>
-          <Text>---到底了，换点别的看看吧---</Text>
-        </View>
-      );
-    }
-    if (loading && hasMore && channels.length > 0) {
-      return (
-        <View style={styles.loading}>
-          <Text>正在加载中...</Text>
-        </View>
-      );
-    }
-  }
+  //列表为空
   get empty() {
     const {loading} = this.props;
     if (loading) {
@@ -122,25 +126,48 @@ class Index extends React.Component<IProps, IState> {
       </View>
     );
   }
+
+  onScroll = ({nativeEvent}: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const offsetY = nativeEvent.contentOffset.y;
+    let newGradientVisible = offsetY < imgHeight;
+    const {dispatch, gradientVisible} = this.props;
+    if (gradientVisible !== newGradientVisible) {
+      dispatch({
+        type: 'home/setState',
+        payload: {
+          gradientVisible: newGradientVisible,
+        },
+      });
+    }
+  };
   render() {
     const {channels} = this.props;
     const {refreshing} = this.state;
     return (
       <FlatList
         ListHeaderComponent={this.header}
+        ListHeaderComponentStyle={styles.header}
         ListFooterComponent={this.footer}
         ListEmptyComponent={this.empty}
+        style={styles.flatList}
         data={channels}
         renderItem={this.renderItem}
         onRefresh={this.onRefresh}
         refreshing={refreshing}
         onEndReached={this.onEndReached}
         onEndReachedThreshold={0.2}
+        onScroll={this.onScroll}
       />
     );
   }
 }
 const styles = StyleSheet.create({
+  flatList: {
+    backgroundColor: '#fff',
+  },
+  header: {
+    marginTop: 15,
+  },
   end: {
     alignItems: 'center',
     paddingVertical: 10,

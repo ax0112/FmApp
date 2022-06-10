@@ -28,7 +28,7 @@ export interface IChannel {
   played: number;
   playing: number;
 }
-
+//首页列表
 export interface IPagination {
   current: number;
   total: number;
@@ -39,6 +39,8 @@ export interface HomeState {
   guess: IGuess[];
   channels: IChannel[];
   pagination: IPagination;
+  activeCarouselIndex: number; //当前轮播图下标
+  gradientVisible: boolean; //渐变色组件是否显示状态
 }
 
 interface HomeModel extends Model {
@@ -56,6 +58,7 @@ interface HomeModel extends Model {
 
 const initialState: HomeState = {
   carousel: [],
+  activeCarouselIndex: 0,
   guess: [],
   channels: [],
   pagination: {
@@ -63,6 +66,7 @@ const initialState: HomeState = {
     total: 0,
     hasMore: true,
   },
+  gradientVisible: true,
 };
 
 const homeModel: HomeModel = {

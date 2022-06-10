@@ -7,6 +7,7 @@ import {
   HeaderStyleInterpolators,
 } from '@react-navigation/stack';
 import BottomTabs from './BottomTabs';
+import Category from '@/pages/Category';
 import Detail from '@/pages/Detail';
 import {Platform, StatusBar, StyleSheet} from 'react-native';
 
@@ -15,6 +16,7 @@ export type RootStackParamList = {
   BottomTabs: {
     screen?: string;
   };
+  Category: undefined;
   Detail: {
     id: number;
   };
@@ -35,6 +37,8 @@ class Navigator extends React.Component<any, any> {
             headerTitleAlign: 'center',
             gestureEnabled: true,
             gestureDirection: 'horizontal',
+            headerBackTitleVisible: false,
+            headerTintColor: '#333',
             headerStyle: {
               ...Platform.select({
                 android: {
@@ -51,9 +55,14 @@ class Navigator extends React.Component<any, any> {
             component={BottomTabs}
           />
           <Stack.Screen
-            options={{headerTitle: '详情页'}}
             name="Detail"
+            options={{headerTitle: '详情页'}}
             component={Detail}
+          />
+          <Stack.Screen
+            name="Category"
+            options={{headerTitle: '分类'}}
+            component={Category}
           />
         </Stack.Navigator>
       </NavigationContainer>

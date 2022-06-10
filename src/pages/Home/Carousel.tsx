@@ -1,28 +1,89 @@
 import React from 'react';
 import Carousel, {
   AdditionalParallaxProps,
-  // Pagination,
+  Pagination,
   ParallaxImage,
 } from 'react-native-snap-carousel';
 import {hp, viewportWidth, wp} from '@/utils/index';
 import {StyleSheet, View} from 'react-native';
 import {ICarousel} from '@/models/home';
+import {RootState} from '@/models/index';
+import {connect, ConnectedProps} from 'react-redux';
 
-// const data = [
-//   'https://s2.loli.net/2022/06/01/oPDm7Wq2S3w6Ta8.jpg',
-//   'https://s2.loli.net/2022/06/01/PXcdM3xkYKovEsh.jpg',
-//   'https://s2.loli.net/2022/06/01/Ks2gnSDApZCNtTW.jpg',
-//   'https://s2.loli.net/2022/06/01/tJIzfKSmoGVqyrg.jpg',
-//   'https://s2.loli.net/2022/06/01/ulwtWpIR6YBMHXi.jpg',
-//   'https://s2.loli.net/2022/06/01/TbXizWAHoVUDevO.png',
-// ];
-interface IProps {
-  data: ICarousel[];
+const mapStateToProps = ({home}: RootState) => ({
+  data: home.carousel,
+  activeCarouselIndex: home.activeCarouselIndex,
+});
+const connector = connect(mapStateToProps);
+type ModelState = ConnectedProps<typeof connector>;
+
+interface IProps extends ModelState {}
+
+export class MyCarousel extends React.Component<IProps> {
+  onSnapToItem = (index: number) => {
+    const {dispatch} = this.props;
+    dispatch({
+      type: 'home/setState',
+      payload: {
+        activeCarouselIndex: index,
+      },
+    });
+  };
+  _renderItem = (
+    {item}: {item: ICarousel},
+    parallaxProps?: AdditionalParallaxProps,
+  ) => {
+    let image = item.image;
+    return (
+      <ParallaxImage
+        source={{uri: image[0]}}
+        style={styles.image}
+        containerStyle={styles.imageContainer}
+        showSpinner
+        spinnerColor="rgba(0,0,0,0.35)"
+        {...parallaxProps}
+      />
+    );
+  };
+  get pagination() {
+    const {data, activeCarouselIndex} = this.props;
+    return (
+      <View style={styles.paginationWrapper}>
+        <Pagination
+          containerStyle={styles.paginationContainer}
+          dotsLength={data.length}
+          dotStyle={styles.dot}
+          activeDotIndex={activeCarouselIndex}
+          dotContainerStyle={styles.dotContainer}
+          inactiveDotScale={0.8}
+          inactiveDotOpacity={0.4}
+        />
+      </View>
+    );
+  }
+  render() {
+    const {data} = this.props;
+    return (
+      <View>
+        <Carousel
+          data={data}
+          renderItem={this._renderItem}
+          sliderWidth={sliderWidth}
+          itemWidth={itemWidth}
+          hasParallaxImages
+          loop
+          autoplay
+          onSnapToItem={this.onSnapToItem}
+        />
+        {this.pagination}
+      </View>
+    );
+  }
 }
 
 const sliderWidth = viewportWidth;
 // const imgWidth = wp(90);
-const imgHeight = hp(22);
+export const imgHeight = hp(26);
 const itemWidth = wp(90) + wp(2) * 2;
 const styles = StyleSheet.create({
   imageContainer: {
@@ -62,67 +123,4 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.9)',
   },
 });
-export class MyCarousel extends React.Component<IProps> {
-  state = {
-    activeSlide: 0,
-  };
-
-  onSnapToItem = (index: number) => {
-    this.setState({
-      activeSlide: index,
-    });
-  };
-  _renderItem = (
-    {item}: {item: ICarousel},
-    parallaxProps?: AdditionalParallaxProps,
-  ) => {
-    let image = item.image;
-    return (
-      <ParallaxImage
-        source={{uri: image[0]}}
-        style={styles.image}
-        containerStyle={styles.imageContainer}
-        showSpinner
-        spinnerColor="rgba(0,0,0,0.35)"
-        {...parallaxProps}
-      />
-    );
-  };
-  // get pagination() {
-  // const {data} = this.props;
-  // const {activeSlide} = this.state;
-  // return (
-  //   <View style={styles.paginationWrapper}>
-  //     <Pagination
-  //       containerStyle={styles.paginationContainer}
-  // dotsLength={data.length}
-  // dotStyle={styles.dot}
-  // activeDotIndex={activeSlide}
-  // dotContainerStyle={styles.dotContainer}
-  // inactiveDotScale={0.8}
-  // inactiveDotOpacity={0.4}
-  // />
-  // </View>
-  // );
-  // }
-  render() {
-    const {data} = this.props;
-    return (
-      <View>
-        <Carousel
-          data={data}
-          renderItem={this._renderItem}
-          sliderWidth={sliderWidth}
-          itemWidth={itemWidth}
-          hasParallaxImages
-          loop
-          autoplay
-          onSnapToItem={this.onSnapToItem}
-        />
-        {/*{this.pagination}*/}
-      </View>
-    );
-  }
-}
-
-export default MyCarousel;
+export default connector(MyCarousel);

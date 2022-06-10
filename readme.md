@@ -22,3 +22,4 @@
 3. 导航器 react navigation 6.x
 4. 状态管理器 dva
 5. 接口接收 axios
+6. 数据存储 react-native-storage
